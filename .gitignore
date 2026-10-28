@@ -1,0 +1,10 @@
+.gradle
+bin
+build
+luac
+test/working
+*.orig
+*.rej
+
+# mercurial
+.hg
