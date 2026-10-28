@@ -284,6 +284,17 @@ public class TestFiles {
     new TestFile("53_expression02"),
     new TestFile("54_tbc01"),
     new TestFile("55_namedvararg01"),
+    new TestFile("55_break01", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break02", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break03", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break04", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break05", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break06", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break07", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_break08", TestFile.DEFAULT_VERSION, TestFile.NO_GOTO),
+    new TestFile("55_goto01"),
+    new TestFile("55_goto02"),
+    new TestFile("55_goto03"),
   };
   
   public static TestSuite suite = new TestSuite(null, ".\\test\\src\\", tests);

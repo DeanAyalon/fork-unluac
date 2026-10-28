@@ -1016,7 +1016,7 @@ public class ControlFlowHandler {
         }
         
         Block breakable = enclosing_breakable_block(state, line);
-        if(isbreakgotocandidate && breakable != null && (b.targetFirst == breakable.end || b.targetFirst == state.resolved[breakable.end])) {
+        if(isbreakgotocandidate && breakable != null && is_break(state, line, b.targetFirst, breakable)) {
           Break block = new Break(state.function, b.line, b.targetFirst);
           if(!hanging.isEmpty() && hanging.peek().targetSecond == b.targetFirst
             && enclosing_block(state, hanging.peek().line) == enclosing
@@ -1856,6 +1856,33 @@ public class ControlFlowHandler {
       return target == breakable.end || target == state.resolved[breakable.end];
     }
     return false;
+  }
+
+  // Lua 5.5 break is a goto that closes the loop state itself, then jumps to
+  // the label after the loop's own close of that same register.
+  private static boolean is_break(State state, int line, int target, Block breakable) {
+    if(target == breakable.end || target == state.resolved[breakable.end]) {
+      return true;
+    }
+    if(!is_after_trailing_close(state, target, breakable)) {
+      return false;
+    }
+    int end = breakable.end;
+    return line - 1 >= 1
+      && is_close(state, line - 1)
+      && get_close_value(state, line - 1) == get_close_value(state, end);
+  }
+
+  private static boolean is_after_trailing_close(State state, int target, Block breakable) {
+    if(!state.function.header.version.usedeadclose.get()) {
+      return false;
+    }
+    int end = breakable.end;
+    if(end < 1 || end > state.code.length || !is_close(state, end)) {
+      return false;
+    }
+    int past = end + 1;
+    return past <= state.code.length && target == state.resolved[past];
   }
   
   private static boolean is_close(State state, int line) {

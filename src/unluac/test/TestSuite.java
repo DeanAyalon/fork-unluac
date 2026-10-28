@@ -1,7 +1,10 @@
 package unluac.test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import unluac.Configuration;
 import unluac.Main;
@@ -33,7 +36,7 @@ public class TestSuite {
     }
   }
   
-  private TestResult test(LuaSpec spec, UnluacSpec uspec, String file, Configuration config) {
+  private TestResult test(LuaSpec spec, UnluacSpec uspec, String file, Configuration config, boolean nogoto) {
     try {
       LuaC.compile(spec, file, working_dir + compiled);
     } catch (IOException e) {
@@ -41,6 +44,9 @@ public class TestSuite {
     }
     try {
       uspec.run(working_dir + compiled, working_dir + decompiled, config);
+      if(nogoto && !uspec.disassemble && contains(working_dir + decompiled, "goto")) {
+        return TestResult.FAILED;
+      }
       if(!uspec.disassemble) {
         LuaC.compile(spec, working_dir + decompiled, working_dir + recompiled);
       } else {
@@ -88,7 +94,7 @@ public class TestSuite {
       if(spec.compatible(testfile)) {
         String name = testfile.name;
         Configuration config = configure(testfile, base);
-        TestResult result = test(spec, uspec, path + name + ext, config);
+        TestResult result = test(spec, uspec, path + name + ext, config, testfile.getFlag(TestFile.NO_GOTO));
         report.result(testName(spec, name), result);
         switch(result) {
           case OK:
@@ -124,7 +130,7 @@ public class TestSuite {
       }
       TestResult result;
       if(!compiled) {
-        result = test(spec, uspec, full, config);
+        result = test(spec, uspec, full, config, false);
       } else {
         result = testc(spec, uspec, full, config);
       }
@@ -161,6 +167,21 @@ public class TestSuite {
   
   private Configuration extend(Configuration base, Configuration modified) {
     return modified != null ? modified : new Configuration(base);
+  }
+  
+  private static boolean contains(String file, String text) throws IOException {
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+    try {
+      String line;
+      while((line = in.readLine()) != null) {
+        if(line.contains(text)) {
+          return true;
+        }
+      }
+      return false;
+    } finally {
+      in.close();
+    }
   }
   
 }
