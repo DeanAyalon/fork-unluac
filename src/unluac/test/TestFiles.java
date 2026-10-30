@@ -297,6 +297,6 @@ public class TestFiles {
     new TestFile("55_goto03"),
   };
   
-  public static TestSuite suite = new TestSuite(null, ".\\test\\src\\", tests);
+  public static TestSuite suite = new TestSuite(null, "./test/src/", tests);
   
 }
